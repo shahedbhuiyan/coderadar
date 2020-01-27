@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends Neo4jRepository<UserEntity, Long> {
 
-  @Query("MATCH (u:UserEntity) WHERE u.username = {0} RETURN u")
+  @Query("MATCH (u:UserEntity {username: {0}}) RETURN u")
   @NonNull
   Optional<UserEntity> findByUsername(@NonNull String username);
 
-  @Query("MATCH (u:UserEntity) WHERE u.username = {0} RETURN COUNT(u) > 0")
+  @Query("MATCH (u:UserEntity {username: {0}}) RETURN COUNT(u) > 0")
   boolean existsByUsername(@NonNull String username);
 
   @Query("MATCH (u) WHERE ID(u) = {0} RETURN COUNT(u) > 0")

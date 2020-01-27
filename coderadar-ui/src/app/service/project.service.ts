@@ -250,4 +250,8 @@ export class ProjectService {
   resetAnalysis(id: number, b: boolean) {
     return this.httpClient.post(this.apiURL + 'projects/' + id + '/analyze/reset', {}, {observe: 'response'}).toPromise();
   }
+
+  getAnalyzingStatus(id: number): Promise<HttpResponse<any>> {
+    return this.httpClient.get(this.apiURL + 'projects/' + id + '/analyzingStatus ', {observe: 'response'}).toPromise();
+  }
 }

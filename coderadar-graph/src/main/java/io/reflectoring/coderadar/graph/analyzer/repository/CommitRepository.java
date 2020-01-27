@@ -17,24 +17,24 @@ public interface CommitRepository extends Neo4jRepository<CommitEntity, Long> {
   List<CommitEntity> findByProjectIdAndTimestampDesc(@NonNull Long projectId);
 
   @Query(
-      "MATCH (p)-[:CONTAINS_COMMIT]->(c:CommitEntity) WHERE ID(p) = {0} WITH c "
+      "MATCH (p)-[:CONTAINS_COMMIT]->(c) WHERE ID(p) = {0} WITH c "
           + "OPTIONAL MATCH (c)-[r2:IS_CHILD_OF]-(c1) "
-          + "OPTIONAL MATCH (c)<-[r:CHANGED_IN]-(f:FileEntity) RETURN DISTINCT c, c1, r, r2, f ORDER BY c.timestamp")
+          + "OPTIONAL MATCH (c)<-[r:CHANGED_IN]-(f) RETURN DISTINCT c, c1, r, r2, f ORDER BY c.timestamp")
   @NonNull
   List<CommitEntity> findByProjectIdWithAllRelationshipsSortedByTimestampAsc(
       @NonNull Long projectId);
 
   @Query(
       "MATCH (p)-[:CONTAINS_COMMIT]->(c:CommitEntity) WHERE ID(p) = {0} WITH c "
-          + "OPTIONAL MATCH (c)<-[r:CHANGED_IN]-(f:FileEntity) RETURN DISTINCT c, r, f ORDER BY c.timestamp")
+          + "OPTIONAL MATCH (c)<-[r:CHANGED_IN]-(f) RETURN c, r, f ORDER BY c.timestamp")
   @NonNull
   List<CommitEntity> findByProjectIdWithFileRelationshipsSortedByTimestampAsc(
       @NonNull Long projectId);
 
   @Query(
-      "MATCH (p)-[:CONTAINS_COMMIT]->(c:CommitEntity) WHERE ID(p) = {0} AND c.analyzed = FALSE WITH c "
-          + "OPTIONAL MATCH (c)<-[r:CHANGED_IN]-(f:FileEntity) WHERE r.changeType <> \"DELETE\" AND any(x IN {1} WHERE f.path =~ x) "
-          + "AND none(x IN {2} WHERE f.path =~ x) RETURN DISTINCT c, r, f ORDER BY c.timestamp")
+      "MATCH (p)-[:CONTAINS_COMMIT]->(c {analyzed: false}) WHERE ID(p) = {0} WITH c "
+          + "OPTIONAL MATCH (c)<-[r:CHANGED_IN]-(f) WHERE r.changeType <> \"DELETE\" AND any(x IN {1} WHERE f.path =~ x) "
+          + "AND none(x IN {2} WHERE f.path =~ x) RETURN c, r, f ORDER BY c.timestamp")
   @NonNull
   List<CommitEntity> findByProjectIdNonAnalyzedWithFileRelationshipsSortedByTimestampAsc(
       @NonNull Long projectId, @NonNull List<String> includes, List<String> excludes);
@@ -48,12 +48,7 @@ public interface CommitRepository extends Neo4jRepository<CommitEntity, Long> {
   @NonNull
   CommitEntity findHeadCommit(@NonNull Long projectId);
 
-  @Query(
-      "MATCH (p:ProjectEntity)-[:CONTAINS_COMMIT]->(c:CommitEntity) WHERE c.name = {0} AND ID(p) = {1} RETURN c")
-  @NonNull
-  Optional<CommitEntity> findByNameAndProjectId(@NonNull String commit, @NonNull Long projectId);
-
-  @Query("MATCH (c:CommitEntity) WHERE ID(c) IN {0} SET c.analyzed = true")
+  @Query("MATCH (c) WHERE ID(c) IN {0} SET c.analyzed = true")
   void setCommitsWithIDsAsAnalyzed(@NonNull long[] commitIds);
 
   @Query("MATCH (c) WHERE ID(c) IN {0} RETURN c")

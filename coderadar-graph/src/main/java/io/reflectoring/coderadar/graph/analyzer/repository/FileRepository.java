@@ -21,7 +21,7 @@ public interface FileRepository extends Neo4jRepository<FileEntity, Long> {
    * @return The paths of the files that have been modified
    */
   @Query(
-      "MATCH (p)-[:CONTAINS*]->(f:FileEntity)-[r:CHANGED_IN {changeType: \"MODIFY\"}]->(c:CommitEntity) WHERE ID(p) = {2} "
+      "MATCH (p)-[:CONTAINS_COMMIT]->(c)<-[r:CHANGED_IN {changeType: \"MODIFY\"}]-(f) WHERE ID(p) = {2} "
           + "AND c.timestamp <= {1} AND c.timestamp > {0} "
           + "RETURN DISTINCT f.path")
   @NonNull
@@ -29,15 +29,7 @@ public interface FileRepository extends Neo4jRepository<FileEntity, Long> {
       @NonNull Long commit1Time, @NonNull Long commit2Time, @NonNull Long projectId);
 
   @Query(
-      "MATCH (p)-[:CONTAINS*]->(f:FileEntity)-[r:CHANGED_IN {changeType: \"RENAME\"}]->(c:CommitEntity) WHERE ID(p) = {2} "
-          + "AND c.timestamp <= {1} AND c.timestamp > {0} "
-          + "RETURN collect(DISTINCT r.oldPath) as paths")
-  @NonNull
-  List<String> getFilesRenamedBetweenCommits(
-      @NonNull Long commit1Time, @NonNull Long commit2Time, @NonNull Long projectId);
-
-  @Query(
-      "MATCH (p)-[:CONTAINS*]->(f:FileEntity)-[r:CHANGED_IN]->(c:CommitEntity) WHERE f.path IN {0} AND c.timestamp <= {2}  "
+      "MATCH (p)-[:CONTAINS*]->(f)-[r:CHANGED_IN]->(c) WHERE f.path IN {0} AND c.timestamp <= {2}  "
           + "AND c.timestamp > {1} AND ID(p) = {3} AND r.changeType = \"RENAME\" "
           + "RETURN {oldPath: head(collect(DISTINCT r)).oldPath, newPath: f.path} as rename")
   @NonNull

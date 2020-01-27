@@ -52,20 +52,20 @@ public interface ProjectRepository extends Neo4jRepository<ProjectEntity, Long> 
   @Query("MATCH (p)-[:HAS]->(a) WHERE ID(p) = {0} DETACH DELETE a")
   void deleteProjectConfiguration(@NonNull Long projectId);
 
-  @Query("MATCH (p:ProjectEntity) WHERE p.isBeingDeleted = FALSE RETURN p")
+  @Query("MATCH (p:ProjectEntity {isBeingDeleted: false}) RETURN p")
   @NonNull
   List<ProjectEntity> findAll();
 
-  @Query("MATCH (p:ProjectEntity) WHERE p.name = {0} AND p.isBeingDeleted = FALSE RETURN p LIMIT 1")
+  @Query("MATCH (p:ProjectEntity {name: {0}, isBeingDeleted: false}) RETURN p LIMIT 1")
   @NonNull
   Optional<ProjectEntity> findByName(@NonNull String name);
 
-  @Query("MATCH (p) WHERE ID(p) = {0} AND p.isBeingDeleted = FALSE RETURN p")
+  @Query("MATCH (p {isBeingDeleted: false}) WHERE ID(p) = {0} RETURN p")
   @NonNull
   Optional<ProjectEntity> findById(@NonNull Long id);
 
   @Query(
-      "MATCH (p) WHERE ID(p) = {0} AND p.isBeingDeleted = FALSE WITH p "
+      "MATCH (p {isBeingDeleted: false}) WHERE ID(p) = {0} WITH p "
           + "OPTIONAL MATCH (p)-[r:CONTAINS]->(m:ModuleEntity) "
           + "RETURN p, r, m")
   @NonNull
@@ -82,7 +82,7 @@ public interface ProjectRepository extends Neo4jRepository<ProjectEntity, Long> 
   boolean existsById(@NonNull Long id);
 
   @Query(
-      "MATCH (p:ProjectEntity) WHERE p.name = {0} AND p.isBeingDeleted = FALSE RETURN COUNT(*) > 0")
+      "MATCH (p:ProjectEntity {name: {0}, isBeingDeleted: false}) RETURN COUNT(*) > 0")
   boolean existsByName(@NonNull String name);
 
   @Query("MATCH (p) WHERE ID(p) = {0} RETURN p.analyzingStatus")

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Project} from '../../model/project';
 import {ProjectService} from '../../service/project.service';
 import {Router} from '@angular/router';
@@ -7,18 +7,20 @@ import {FORBIDDEN, UNPROCESSABLE_ENTITY} from 'http-status-codes';
 import {Title} from '@angular/platform-browser';
 import {AppComponent} from '../../app.component';
 import {MatSnackBar} from '@angular/material';
+import {Subscription, timer} from 'rxjs';
 
 @Component({
   selector: 'app-main-dashboard',
   templateUrl: './main-dashboard.component.html',
   styleUrls: ['./main-dashboard.component.scss']
 })
-export class MainDashboardComponent implements OnInit {
+export class MainDashboardComponent implements OnInit, OnDestroy {
 
   projects: Project[] = [];
 
   appComponent = AppComponent;
   waiting = false;
+  updateProjectStatusTimer: Subscription;
 
   constructor(private snackBar: MatSnackBar, private titleService: Title, private userService: UserService,
               private router: Router, private projectService: ProjectService) {
@@ -27,6 +29,11 @@ export class MainDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.getProjects();
+    this.updateProjectStatusTimer = timer(4000, 8000).subscribe(() => {
+      this.projects.forEach(value => {
+        this.getAnalyzingStatus(value);
+      });
+    });
   }
 
   /**
@@ -61,6 +68,7 @@ export class MainDashboardComponent implements OnInit {
       .then(response => {response.body.forEach(project => {
         const newProject = new Project(project);
         this.projects.push(newProject);
+        this.getAnalyzingStatus(newProject);
         });
                          this.waiting = false;
         }
@@ -72,12 +80,13 @@ export class MainDashboardComponent implements OnInit {
       });
   }
 
-  startAnalysis(id: number) {
-    this.projectService.startAnalyzingJob(id, true).then(() => {
+  startAnalysis(project: Project) {
+    this.projectService.startAnalyzingJob(project.id, true).then(() => {
+      project.analyzingStatus = true;
       this.openSnackBar('Analysis started!', '🞩');
     }).catch(error => {
       if (error.status && error.status === FORBIDDEN) {
-        this.userService.refresh(() => this.projectService.startAnalyzingJob(id, true));
+        this.userService.refresh(() => this.projectService.startAnalyzingJob(project.id, true));
       } else if (error.status && error.status === UNPROCESSABLE_ENTITY) {
         if (error.error.errorMessage === 'Cannot analyze project without analyzers') {
           this.openSnackBar('Cannot analyze, no analyzers configured for this project!', '🞩');
@@ -108,15 +117,26 @@ export class MainDashboardComponent implements OnInit {
     });
   }
 
-  stopAnalysis(id: number) {
-    this.projectService.stopAnalyzingJob(id).then(() => {
+  stopAnalysis(project: Project) {
+    this.projectService.stopAnalyzingJob(project.id).then(() => {
+      project.analyzingStatus = false;
       this.openSnackBar('Analysis stopped!', '🞩');
     }).catch(error => {
       if (error.status && error.status === FORBIDDEN) {
-        this.userService.refresh(() => this.projectService.stopAnalyzingJob(id));
+        this.userService.refresh(() => this.projectService.stopAnalyzingJob(project.id));
       } else if (error.status && error.status === UNPROCESSABLE_ENTITY) {
         this.openSnackBar('Analysis stopped!', '🞩');
       }
     });
+  }
+
+  private getAnalyzingStatus(project: Project) {
+    this.projectService.getAnalyzingStatus(project.id).then(value => {
+      project.analyzingStatus = value.body.status;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.updateProjectStatusTimer.unsubscribe();
   }
 }

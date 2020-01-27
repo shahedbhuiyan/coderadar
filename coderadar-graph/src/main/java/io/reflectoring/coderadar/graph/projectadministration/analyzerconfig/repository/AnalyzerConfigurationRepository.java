@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface AnalyzerConfigurationRepository
     extends Neo4jRepository<AnalyzerConfigurationEntity, Long> {
 
-  @Query("MATCH (p)-[:HAS]->(c:AnalyzerConfigurationEntity) WHERE ID(p) = {0} RETURN c")
+  @Query("MATCH (p)-[:HAS]->(c) WHERE ID(p) = {0} RETURN c")
   @NonNull
   List<AnalyzerConfigurationEntity> findByProjectId(@NonNull Long projectId);
 }

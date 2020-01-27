@@ -7,6 +7,7 @@ export class Project {
   public vcsOnline = true; // always online
   public startDate: string;
   public endDate: string;
+  public analyzingStatus = false;
 
   /**
    * Construct a new project from the object delivered by the server.

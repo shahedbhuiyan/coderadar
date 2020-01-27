@@ -10,12 +10,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RefreshTokenRepository extends Neo4jRepository<RefreshTokenEntity, Long> {
 
-  @Query("MATCH (r:RefreshTokenEntity) WHERE r.token = {0} RETURN r")
+  @Query("MATCH (r:RefreshTokenEntity {token: {0}}) RETURN r")
   RefreshTokenEntity findByToken(@NonNull String token);
 
-  @Query("MATCH (r:RefreshTokenEntity)<-[:HAS]-(u) WHERE r.token = {0} RETURN u")
+  @Query("MATCH (r:RefreshTokenEntity {token: {0}})<-[:HAS]-(u) RETURN u")
   UserEntity findUserByToken(@NonNull String token);
 
-  @Query("MATCH (r:RefreshTokenEntity)<-[:HAS]-(u) WHERE ID(u) = {0} DETACH DELETE r")
+  @Query("MATCH (u)-[:HAS]->(r) WHERE ID(u) = {0} DETACH DELETE r")
   void deleteByUser(@NonNull Long userId);
 }
