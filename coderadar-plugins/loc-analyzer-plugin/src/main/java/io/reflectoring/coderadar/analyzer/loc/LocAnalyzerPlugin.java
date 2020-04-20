@@ -27,6 +27,11 @@ public class LocAnalyzerPlugin implements SourceCodeFileAnalyzerPlugin {
     }
   }
 
+  @Override
+  public String getMetricDescription(String metricName) {
+    return null;
+  }
+
   private FileMetrics toFileMetrics(Loc loc, String fileEnding) {
     String sanitizedFileEnding = fileEnding.replaceAll("\\.", "");
     FileMetrics metrics = new FileMetrics();

@@ -21,4 +21,10 @@ public interface SourceCodeFileAnalyzerPlugin extends AnalyzerPlugin {
      * @return a set of metric values calculated for the given file.
      */
     FileMetrics analyzeFile(String filename, byte[] fileContent) throws AnalyzerException;
+
+    /**
+     * @param metricName The name of the metric.
+     * @return An end-user friendly description of the given metric.
+     */
+    String getMetricDescription(String metricName);
 }

@@ -1,6 +1,7 @@
 package io.reflectoring.coderadar.query.service;
 
 import io.reflectoring.coderadar.CoderadarConfigurationProperties;
+import io.reflectoring.coderadar.analyzer.GetMetricDescriptionService;
 import io.reflectoring.coderadar.projectadministration.domain.Project;
 import io.reflectoring.coderadar.projectadministration.port.driven.project.GetProjectPort;
 import io.reflectoring.coderadar.query.domain.FileContentWithMetrics;
@@ -24,7 +25,8 @@ public class GetFileContentWithMetricsService implements GetFileContentWithMetri
       GetProjectPort getProjectPort,
       GetRawCommitContentPort getRawCommitContentPort,
       GetMetricsAndFindingsForFilePort getMetricsAndFindingsForFilePort,
-      CoderadarConfigurationProperties coderadarConfigurationProperties) {
+      CoderadarConfigurationProperties coderadarConfigurationProperties,
+      GetMetricDescriptionService getMetricDescriptionService) {
     this.getProjectPort = getProjectPort;
     this.getRawCommitContentPort = getRawCommitContentPort;
     this.getMetricsAndFindingsForFilePort = getMetricsAndFindingsForFilePort;

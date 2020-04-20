@@ -1,5 +1,6 @@
 package io.reflectoring.coderadar.graph.query.adapter;
 
+import io.reflectoring.coderadar.analyzer.GetMetricDescriptionService;
 import io.reflectoring.coderadar.analyzer.domain.Finding;
 import io.reflectoring.coderadar.graph.analyzer.FindingsMapper;
 import io.reflectoring.coderadar.graph.query.repository.MetricQueryRepository;
@@ -15,9 +16,13 @@ public class GetMetricsAndFindingsForFileAdapter implements GetMetricsAndFinding
 
   private final MetricQueryRepository metricQueryRepository;
   private final FindingsMapper findingsMapper = new FindingsMapper();
+  private final GetMetricDescriptionService getMetricDescriptionService;
 
-  public GetMetricsAndFindingsForFileAdapter(MetricQueryRepository metricQueryRepository) {
+  public GetMetricsAndFindingsForFileAdapter(
+      MetricQueryRepository metricQueryRepository,
+      GetMetricDescriptionService getMetricDescriptionService) {
     this.metricQueryRepository = metricQueryRepository;
+    this.getMetricDescriptionService = getMetricDescriptionService;
   }
 
   public List<MetricWithFindings> getMetricsAndFindingsForFile(
@@ -35,7 +40,9 @@ public class GetMetricsAndFindingsForFileAdapter implements GetMetricsAndFinding
         strings.add((String) f);
       }
       List<Finding> findings = findingsMapper.mapNodeEntities(strings);
-      result.add(new MetricWithFindings(name, value, findings));
+      result.add(
+          new MetricWithFindings(
+              name, getMetricDescriptionService.getMetricDescription(name), value, findings));
     }
     return result;
   }

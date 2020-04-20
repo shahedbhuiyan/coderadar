@@ -16,6 +16,8 @@ public class CheckstyleSourceCodeFileAnalyzerPlugin
     implements SourceCodeFileAnalyzerPlugin, ConfigurableAnalyzerPlugin {
 
   private Logger logger = LoggerFactory.getLogger(CheckstyleSourceCodeFileAnalyzerPlugin.class);
+  private final CheckstyleMetricDescriptions metricDescriptions =
+      new CheckstyleMetricDescriptions();
 
   private Checker checker;
 
@@ -66,6 +68,12 @@ public class CheckstyleSourceCodeFileAnalyzerPlugin
         logger.warn("Could not delete temporary file {}", fileToAnalyze);
       }
     }
+  }
+
+  @Override
+  public String getMetricDescription(String metricName) {
+    String[] temp = metricName.split("\\.");
+    return metricDescriptions.get(temp[temp.length - 1]);
   }
 
   private File createTempFile(byte[] fileContent) throws IOException {

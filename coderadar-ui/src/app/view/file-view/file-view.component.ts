@@ -175,19 +175,21 @@ export class FileViewComponent implements OnInit, AfterViewChecked {
   }
 
   private getTooltipForRange(range: Attr): string {
-    const lineStart = range.value.split('-')[0];
+    const lineStart = +range.value.split('-')[0];
     let findings = '';
     this.currentFileMetrics.forEach(value => {
       let found = false;
       for (const finding of value.findings) {
-        if (finding.lineStart === +lineStart) {
+        if (finding.lineStart === lineStart) {
           found = true;
           break;
         }
       }
       if (found) {
-        const temp = value.name.split('.');
-        findings += temp[temp.length - 1] + '\n';
+        const temp = value.description + '\n';
+        if(!findings.includes(temp)) {
+          findings += temp;
+        }
       }
     });
     return findings;

@@ -39,7 +39,7 @@ public class AnalyzerPluginService {
     initRegistry(packageName);
   }
 
-  List<String> getAvailableAnalyzers() {
+  public List<String> getAvailableAnalyzers() {
     List<String> analyzerList = new ArrayList<>(sourceCodeFileAnalyzerPlugins.keySet());
     analyzerList.sort(String::compareTo);
     return analyzerList;
@@ -50,7 +50,7 @@ public class AnalyzerPluginService {
    * method of ConfigurationAnalyzerPlugins. Throws an IllegalArgumentException if the analyzer is
    * not registered.
    */
-  SourceCodeFileAnalyzerPlugin createAnalyzer(String analyzerName) {
+  public SourceCodeFileAnalyzerPlugin createAnalyzer(String analyzerName) {
     try {
       if (!isAnalyzerRegistered(analyzerName)) {
         throw new IllegalArgumentException(
